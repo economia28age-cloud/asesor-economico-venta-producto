@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- =========================
+       METADATA
+  ========================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ocelotl | Servicios</title>
+
+  <!-- =========================
+       STYLES
+  ========================== -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- =========================
+       THEME INIT
+  ========================== -->
+  <script>
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+  <button id="theme-toggle" title="Modo oscuro">🌙</button>
+</head>
+
+<body class="page-services">
+
+  <!-- =========================
+       HEADER / NAV
+  ========================== -->
+  <header class="header">
+    <h1>✦ Ocelotl</h1>
+    <nav>
+      <a href="index.html">🏠 Inicio</a>
+      <a href="servicios.html" class="active">📊 Servicios</a>
+      <a href="productos.html">🕯️ Productos</a>
+      
+    </nav>
+  </header>
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+  <main class="container">
+
+    <!-- =========================
+         HERO / INTRO
+    ========================== -->
+    <section class="hero-servicios">
+      <h1>Asesoría Económica</h1>
+      <p>
+        Servicios pensados para personas reales, enfocados en la claridad
+        y el control financiero.
+      </p>
+    </section>
+
+    <!-- =========================
+         SERVICIOS GRID
+    ========================== -->
+    <section class="services-grid grid">
+
+      <!-- Servicio 1 -->
+      <article class="card">
+        <div class="icon">📌</div>
+        <h3>Diagnóstico Financiero</h3>
+        <p>
+          Análisis integral de tus ingresos, gastos actuales
+          y detección de fugas de dinero.
+        </p>
+        <button
+          onclick="location.href='https://wa.me/5212321134388?text=Hola, me interesa el Diagnóstico Financiero'">
+          Consultar
+        </button>
+      </article>
+
+      <!-- Servicio 2 -->
+      <article class="card">
+        <div class="icon">📉</div>
+        <h3>Control de Gastos</h3>
+        <p>
+          Creación de un presupuesto personalizado y herramientas
+          para el seguimiento diario.
+        </p>
+        <button
+          onclick="location.href='https://wa.me/5212321134388?text=Hola, quiero mejorar mi Control de Gastos'">
+          Consultar
+        </button>
+      </article>
+
+      <!-- Servicio 3 -->
+      <article class="card">
+        <div class="icon">🧠</div>
+        <h3>Educación Financiera</h3>
+        <p>
+          Sesiones uno a uno para entender cómo funciona
+          el dinero sin complicaciones.
+        </p>
+        <button
+          onclick="location.href='https://wa.me/5212321134388?text=Hola, me interesa la Educación Financiera'">
+          Consultar
+        </button>
+      </article>
+
+    </section>
+
+    <!-- =========================
+         CONTACT CTA
+    ========================== -->
+    <section class="contact-banner">
+      <h3>¿Tienes una duda específica?</h3>
+      <p>
+        Hablemos directamente para resolver tus inquietudes financieras.
+      </p>
+      <button class="whatsapp-btn">
+        Enviar WhatsApp
+      </button>
+    </section>
+
+  </main>
+
+  <!-- =========================
+       SCRIPTS
+  ========================== -->
+  <script src="js/script.js"></script>
+
+</body>
+</html>

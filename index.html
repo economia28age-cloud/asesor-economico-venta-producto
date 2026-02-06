@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ocelotl | Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script>
+    if (localStorage.getItem("theme") === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  </script>
+  <button id="theme-toggle" title="Modo oscuro">🌙</button>
+</head>
+<body>
+
+<header class="header">
+  <h1>✦ Ocelotl</h1>
+  <nav>
+    <a href="index.html">🏠 Inicio</a>
+    <a href="servicios.html">📊 Servicios</a>
+    <a href="productos.html">🕯️ Productos</a>
+    <a href="#">Contacto</a>
+    
+  </nav>
+</header>
+<div class="container">
+
+  <section class="hero-home-image">
+    <div class="hero-content">
+      <h2>Economía clara y<br>productos reales</h2>
+      <p>
+        Proyecto personal enfocado en asesoría económica
+        y venta de productos artesanales.
+      </p>
+      <button onclick="location.href='servicios.html'">Ver Servicios</button>
+    </div>
+  </section>
+  <section style="margin-top: 40px;"> <h2 style="margin-bottom: 20px; text-align: center;">¿Qué hago?</h2>
+
+    <div class="grid">
+
+      <div class="card">
+        <h3>Asesoría económica</h3>
+        <p>Análisis de ingresos, gastos y decisiones financieras.</p>
+        <button onclick="location.href='servicios.html'">Ver más</button>
+      </div>
+
+      <div class="card">
+        <h3>Educación financiera</h3>
+        <p>Explicaciones claras sin tecnicismos innecesarios.</p>
+        <button onclick="location.href='servicios.html'">Aprender</button>
+      </div>
+
+      <div class="card">
+        <h3>Productos artesanales</h3>
+        <p>Velas y anillos seleccionados con intención.</p>
+        <button onclick="location.href='productos.html'">Ver tienda</button>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+<script src="js/script.js"></script>
+
+</body>
+</html>

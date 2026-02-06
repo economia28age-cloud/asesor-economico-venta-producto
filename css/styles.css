@@ -1,0 +1,352 @@
+/* ========================
+     SECCIÓN: RESET / BASE
+======================== */
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #fafafa;
+  transition: background 0.3s, color 0.3s;
+}
+/* ========================
+     FIN SECCIÓN: RESET
+======================== */
+
+
+/* ========================
+     SECCIÓN: HEADER / NAVBAR
+======================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+nav a {
+  margin-left: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.cart-btn {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+/* ========================
+     FIN SECCIÓN: HEADER
+======================== */
+
+
+/* ========================
+     SECCIÓN: HOME (INDEX)
+     Espacio para estilos exclusivos del inicio
+======================== */
+/* Agrega aquí estilos para el Hero, banners o textos del index */
+/* ========================
+     SECCIÓN: HOME (INDEX)
+     Estilos exclusivos del inicio
+======================== */
+.hero-home-image {
+  position: relative;
+  width: 100%;
+  height: 400px; /* Ajusta la altura a tu gusto */
+  background-image: url('https://i.pinimg.com/1200x/2a/75/c9/2a75c9e468e331e510e3790ac0c3058c.jpg'); /* URL de la imagen de fondo */
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Alinea el contenido a la izquierda */
+  color: white; /* Color del texto sobre la imagen */
+  border-radius: 10px; /* Bordes redondeados para la sección */
+  overflow: hidden; /* Asegura que la imagen no se desborde */
+}
+
+/* Capa de superposición oscura para que el texto sea legible */
+.hero-home-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Color oscuro semi-transparente */
+  z-index: 1; /* Asegura que la capa esté sobre la imagen */
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; /* Asegura que el contenido esté sobre la capa oscura */
+  padding: 20px;
+  max-width: 50%; /* Limita el ancho del texto */
+  text-align: left;
+}
+
+.hero-content h2 {
+  font-size: 2.5em; /* Tamaño del título */
+  margin-bottom: 10px;
+}
+
+.hero-content p {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+}
+
+.hero-content button {
+  background: #d28c4b; /* Color del botón de las cards */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+  transition: background 0.3s ease;
+}
+
+.hero-content button:hover {
+  background: #b87a3e; /* Oscurece el botón al pasar el ratón */
+}
+
+
+
+/* ========================
+     FIN SECCIÓN: HOME
+======================== */
+
+
+/* ========================
+     SECCIÓN: SERVICIOS
+     Espacio para estilos exclusivos de asesoría
+======================== */
+/* Agrega aquí estilos para listas de servicios o sidebars de economía */
+
+/* ========================
+     FIN SECCIÓN: SERVICIOS
+======================== */
+
+
+/* ========================
+     SECCIÓN: PRODUCTOS (TIENDA)
+     Estructura de la cuadrícula y tarjetas
+======================== */
+.container {
+  padding: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.card button {
+  background: #d28c4b;
+  border: none;
+  color: white;
+  padding: 8px;
+  width: 100%;
+  border-radius: 5px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+/* ========================
+     FIN SECCIÓN: PRODUCTOS
+======================== */
+
+
+/* ========================
+     SECCIÓN: CARRITO (SIDEBAR)
+======================== */
+.cart {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  height: 100%;
+  background: white;
+  padding: 20px;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  transition: right 0.3s ease;
+  z-index: 9999;
+}
+
+.cart.open {
+  right: 0;
+}
+
+.cart-header {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.cart-header h3 {
+  margin: 0;
+}
+
+.close-cart {
+  position: absolute;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  font-size: 22px;
+  color: #999;
+}
+
+.close-cart:hover {
+  color: red;
+}
+/* ========================
+     FIN SECCIÓN: CARRITO
+======================== */
+
+
+/* ========================
+     SECCIÓN: LIGHTBOX PRO
+======================== */
+#lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+#lightbox.hidden {
+  display: none;
+}
+
+#lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  cursor: zoom-in;
+}
+
+#lightbox img.zoomed {
+  transform: scale(2);
+  cursor: zoom-out;
+}
+
+#lightbox .close,
+#lightbox .prev,
+#lightbox .next {
+  position: absolute;
+  color: white;
+  font-size: 35px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#lightbox .close { top: 20px; right: 25px; }
+#lightbox .prev { left: 20px; }
+#lightbox .next { right: 20px; }
+/* ========================
+     FIN SECCIÓN: LIGHTBOX
+======================== */
+
+
+/* ========================
+     SECCIÓN: MODO OSCURO
+======================== */
+body.dark {
+  background: #121212;
+  color: #eaeaea;
+}
+
+body.dark .header,
+body.dark .card,
+body.dark .cart {
+  background: #1e1e1e;
+}
+
+body.dark nav a {
+  color: #eaeaea;
+}
+
+body.dark button {
+  background: #444;
+  color: white;
+}
+
+body.dark .card {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+/* ========================
+     FIN SECCIÓN: MODO OSCURO
+======================== */
+
+
+/* ========================
+     SECCIÓN: COMPONENTES (WHATSAPP)
+======================== */
+.whatsapp-btn {
+  background: #25D366 !important;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  color: white !important;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+body.dark .whatsapp-btn {
+  background: #25D366 !important;
+  color: white !important;
+}
+/* ========================
+     FIN SECCIÓN: WHATSAPP
+======================== */
+
+
+/* ========================
+     SECCIÓN: RESPONSIVE
+======================== */
+@media (max-width: 600px) {
+  nav a {
+    display: none;
+  }
+  
+  #lightbox .prev,
+  #lightbox .next {
+    font-size: 45px;
+  }
+}
+/* ========================
+     FIN SECCIÓN: RESPONSIVE
+======================== */
