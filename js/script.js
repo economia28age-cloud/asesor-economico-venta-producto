@@ -236,7 +236,7 @@ if (clearCartBtn) clearCartBtn.onclick = (e) => { e.stopPropagation(); clearCart
 
 function sendWhatsApp() {
   if (cart.length === 0) { alert("El carrito está vacío"); return; }
-  let mensaje = `Hola,\nQuiero realizar el siguiente pedido:\n\n`;
+  let mensaje = `🚧(ventas proximamente)🚧Hola,\nQuiero realizar el siguiente pedido:\n\n`;
   let total = 0;
   cart.forEach(item => {
     const subtotal = item.price * item.qty;
@@ -307,4 +307,5 @@ renderProducts();
 updateCart();
 /* ==================================================
    FIN INICIALIZACIÓN
+
 ================================================== */
