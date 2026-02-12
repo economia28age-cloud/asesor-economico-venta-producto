@@ -338,15 +338,19 @@ body.dark .whatsapp-btn {
      SECCIÓN: RESPONSIVE
 ======================== */
 @media (max-width: 600px) {
-  nav a {
-    display: none;
+  nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  
-  #lightbox .prev,
-  #lightbox .next {
-    font-size: 45px;
+
+  nav a {
+    display: block;
+    margin: 8px 0;
   }
 }
+
 /* ========================
      FIN SECCIÓN: RESPONSIVE
+
 ======================== */
