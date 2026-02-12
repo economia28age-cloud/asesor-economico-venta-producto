@@ -1,129 +1,1116 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <!-- =========================
-       METADATA
-  ========================== -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ocelotl | Servicios</title>
-
-  <!-- =========================
-       STYLES
-  ========================== -->
-  <link rel="stylesheet" href="css/styles.css">
-
-  <!-- =========================
-       THEME INIT
-  ========================== -->
-  <script>
-    if (localStorage.getItem("theme") === "dark") {
-      document.documentElement.classList.add("dark");
+  <title>Ocelotl | Visualiza tus Finanzas</title>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- SheetJS para exportar Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  
+  <!-- jsPDF para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  </script>
-  <button id="theme-toggle" title="Modo oscuro">🌙</button>
+
+    :root {
+      --primary: #3b82f6;
+      --secondary: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-light: #f8fafc;
+      --bg-white: #ffffff;
+      --text-dark: #1e293b;
+      --text-gray: #64748b;
+      --border: #e2e8f0;
+    }
+
+    .dark {
+      --bg-light: #0f172a;
+      --bg-white: #1e293b;
+      --text-dark: #f1f5f9;
+      --text-gray: #94a3b8;
+      --border: #334155;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-white);
+      padding: 1.5rem 2rem;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+      margin-bottom: 2rem;
+      border-bottom: 4px solid var(--primary);
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-gray);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.75rem 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(27, 67, 50, 0.3);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      background: var(--primary-light);
+    }
+
+    /* Layout principal */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    /* Panel de entrada */
+    .input-panel {
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+      border: 2px solid var(--primary);
+    }
+
+    .input-panel h2 {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 3px solid var(--border);
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-gray);
+      cursor: pointer;
+      font-weight: 600;
+      border-bottom: 4px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .tab:hover {
+      color: var(--primary-light);
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 0.95rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .category-item {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      align-items: center;
+    }
+
+    .category-item input[type="text"] {
+      flex: 2;
+    }
+
+    .category-item input[type="number"] {
+      flex: 1;
+    }
+
+    .btn-remove {
+      background: var(--danger);
+      color: white;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .btn-remove:hover {
+      background: #b91c1c;
+      transform: scale(1.05);
+    }
+
+    .btn-add {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--secondary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      transition: all 0.3s;
+    }
+
+    .btn-add:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(27, 67, 50, 0.3);
+    }
+
+    /* Panel de visualización */
+    .visualization-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .chart-card {
+      background: var(--bg-white);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .chart-card h3 {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      padding: 1.5rem;
+      border-radius: 12px;
+      color: white;
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+      transition: transform 0.3s;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-box.success {
+      background: linear-gradient(135deg, var(--secondary), #059669);
+    }
+
+    .stat-box.warning {
+      background: linear-gradient(135deg, var(--warning), #d97706);
+    }
+
+    .stat-box.danger {
+      background: linear-gradient(135deg, var(--danger), #b91c1c);
+    }
+
+    .stat-box h4 {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-box .value {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    /* Botones de descarga */
+    .export-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-export {
+      flex: 1;
+      min-width: 150px;
+      padding: 1rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-export:hover {
+      background: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-export.excel {
+      background: var(--secondary);
+    }
+
+    .btn-export.excel:hover {
+      background: #059669;
+    }
+
+    .insights {
+      background: var(--bg-light);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .insights h4 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+
+    .insight-item {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: var(--bg-white);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid var(--border);
+    }
+
+    .insight-icon {
+      font-size: 1.5rem;
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .cta-section h3 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      margin-bottom: 1.5rem;
+      opacity: 0.95;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      padding: 1rem 2rem;
+      background: white;
+      color: var(--primary);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+    }
+
+    .cta-btn.secondary {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+    }
+
+    .cta-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-gray);
+    }
+
+    .empty-state-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1024px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .input-panel {
+        position: relative;
+        top: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-buttons, .export-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
 
-<body class="page-services">
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
 
-  <!-- =========================
-       HEADER / NAV
-  ========================== -->
-  <header class="header">
-    <h1>✦ Ocelotl🚧(Plataforma en construcción)🚧</h1>
+  <header>
+    <h1>🐆 Ocelotl - Visualizador Financiero (Plataforma en construcción)🚧</h1>
+    <p>Ingresa tus datos y visualiza tu situación financiera en tiempo real</p>
+
     <nav>
       <a href="index.html">🏠 Inicio</a>
       <a href="servicios.html" class="active">📊 Servicios</a>
       <a href="productos.html">🕯️ Productos</a>
       
-    </nav>
+        </nav>
+
   </header>
 
-  <!-- =========================
-       MAIN
-  ========================== -->
-  <main class="container">
+  <div class="container">
+    <div class="main-layout">
+      <!-- Panel de entrada de datos -->
+      <div class="input-panel">
+        <h2>💰 Tus Datos Financieros</h2>
+        
+        <div class="tabs">
+          <button class="tab active" onclick="cambiarTab('personal')">Personal</button>
+          <button class="tab" onclick="cambiarTab('empresa')">Empresa</button>
+        </div>
 
-    <!-- =========================
-         HERO / INTRO
-    ========================== -->
-    <section class="hero-servicios">
-      <h1>Asesoría Económica(Plataforma en construcción)</h1>
-      <p>
-        Servicios pensados para personas reales, enfocados en la claridad
-        y el control financiero.
-      </p>
-    </section>
+        <!-- Pestaña Personal -->
+        <div id="tab-personal" class="tab-content">
+          <div class="input-group">
+            <label>Ingresos Mensuales ($)</label>
+            <input type="number" id="ingresos" placeholder="5000" value="5000">
+          </div>
 
-    <!-- =========================
-         SERVICIOS GRID
-    ========================== -->
-    <section class="services-grid grid">
+          <div class="input-group">
+            <label>Categorías de Gastos</label>
+            <div id="gastos-container">
+              <div class="category-item">
+                <input type="text" value="Vivienda" placeholder="Categoría">
+                <input type="number" value="2000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Alimentación" placeholder="Categoría">
+                <input type="number" value="800" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Transporte" placeholder="Categoría">
+                <input type="number" value="500" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Entretenimiento" placeholder="Categoría">
+                <input type="number" value="400" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+            </div>
+            <button class="btn-add" onclick="agregarCategoria()">+ Agregar Categoría</button>
+          </div>
 
-      <!-- Servicio 1 -->
-      <article class="card">
-        <div class="icon">📌</div>
-        <h3>Diagnóstico Financiero</h3>
-        <p>
-          Análisis integral de tus ingresos, gastos actuales
-          y detección de fugas de dinero.
-        </p>
-        <button
-          onclick="location.href='https://wa.me/5212321134388?text=Hola, me interesa el Diagnóstico Financiero'">
-          Consultar
-        </button>
-      </article>
+          <button class="btn-primary" onclick="actualizarGraficas()">📊 Visualizar</button>
+        </div>
 
-      <!-- Servicio 2 -->
-      <article class="card">
-        <div class="icon">📉</div>
-        <h3>Control de Gastos</h3>
-        <p>
-          Creación de un presupuesto personalizado y herramientas
-          para el seguimiento diario.
-        </p>
-        <button
-          onclick="location.href='https://wa.me/5212321134388?text=Hola, quiero mejorar mi Control de Gastos'">
-          Consultar
-        </button>
-      </article>
+        <!-- Pestaña Empresa -->
+        <div id="tab-empresa" class="tab-content" style="display: none;">
+          <div class="input-group">
+            <label>Ingresos Mensuales ($)</label>
+            <input type="number" id="ingresos-empresa" placeholder="50000" value="50000">
+          </div>
 
-      <!-- Servicio 3 -->
-      <article class="card">
-        <div class="icon">🧠</div>
-        <h3>Educación Financiera</h3>
-        <p>
-          Sesiones uno a uno para entender cómo funciona
-          el dinero sin complicaciones.
-        </p>
-        <button
-          onclick="location.href='https://wa.me/5212321134388?text=Hola, me interesa la Educación Financiera'">
-          Consultar
-        </button>
-      </article>
+          <div class="input-group">
+            <label>Categorías de Gastos</label>
+            <div id="gastos-empresa-container">
+              <div class="category-item">
+                <input type="text" value="Nómina" placeholder="Categoría">
+                <input type="number" value="20000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Renta" placeholder="Categoría">
+                <input type="number" value="8000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Servicios" placeholder="Categoría">
+                <input type="number" value="3000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Marketing" placeholder="Categoría">
+                <input type="number" value="5000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+              <div class="category-item">
+                <input type="text" value="Suministros" placeholder="Categoría">
+                <input type="number" value="4000" placeholder="Monto">
+                <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+              </div>
+            </div>
+            <button class="btn-add" onclick="agregarCategoriaEmpresa()">+ Agregar Categoría</button>
+          </div>
 
-    </section>
+          <button class="btn-primary" onclick="actualizarGraficas()">📊 Visualizar</button>
+        </div>
+      </div>
 
-    <!-- =========================
-         CONTACT CTA
-    ========================== -->
-    <section class="contact-banner">
-      <h3>¿Tienes una duda específica?</h3>
-      <p>
-        Hablemos directamente para resolver tus inquietudes financieras.
-      </p>
-      <button class="whatsapp-btn">
-        Enviar WhatsApp
-      </button>
-    </section>
+      <!-- Panel de visualización -->
+      <div class="visualization-panel" id="visualization">
+        <div class="empty-state">
+          <div class="empty-state-icon">📊</div>
+          <h3>Comienza a visualizar tus finanzas</h3>
+          <p>Ingresa tus datos a la izquierda y presiona "Visualizar" para ver tus gráficas personalizadas</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  </main>
+  <script>
+    let tabActual = 'personal';
+    let graficaPastel = null;
+    let graficaBarras = null;
+    let datosActuales = null;
 
-  <!-- =========================
-       SCRIPTS
-  ========================== -->
-  <script src="js/script.js"></script>
+    // Cambiar entre pestañas
+    function cambiarTab(tab) {
+      tabActual = tab;
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('tab-personal').style.display = tab === 'personal' ? 'block' : 'none';
+      document.getElementById('tab-empresa').style.display = tab === 'empresa' ? 'block' : 'none';
+    }
 
+    // Agregar categoría
+    function agregarCategoria() {
+      const container = document.getElementById('gastos-container');
+      const div = document.createElement('div');
+      div.className = 'category-item';
+      div.innerHTML = `
+        <input type="text" placeholder="Categoría">
+        <input type="number" placeholder="Monto">
+        <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function agregarCategoriaEmpresa() {
+      const container = document.getElementById('gastos-empresa-container');
+      const div = document.createElement('div');
+      div.className = 'category-item';
+      div.innerHTML = `
+        <input type="text" placeholder="Categoría">
+        <input type="number" placeholder="Monto">
+        <button class="btn-remove" onclick="removerCategoria(this)">✕</button>
+      `;
+      container.appendChild(div);
+    }
+
+    // Remover categoría
+    function removerCategoria(btn) {
+      btn.parentElement.remove();
+    }
+
+    // Obtener datos según la pestaña activa
+    function obtenerDatos() {
+      const esEmpresa = tabActual === 'empresa';
+      const ingresos = parseFloat(document.getElementById(esEmpresa ? 'ingresos-empresa' : 'ingresos').value) || 0;
+      const container = document.getElementById(esEmpresa ? 'gastos-empresa-container' : 'gastos-container');
+      const items = container.querySelectorAll('.category-item');
+      
+      const gastos = [];
+      items.forEach(item => {
+        const nombre = item.querySelector('input[type="text"]').value;
+        const monto = parseFloat(item.querySelector('input[type="number"]').value) || 0;
+        if (nombre && monto > 0) {
+          gastos.push({ nombre, monto });
+        }
+      });
+      
+      return { ingresos, gastos, tipo: esEmpresa ? 'Empresa' : 'Personal' };
+    }
+
+    // Exportar a Excel
+    function exportarExcel() {
+      if (!datosActuales) {
+        alert('Primero visualiza tus datos');
+        return;
+      }
+
+      const { ingresos, gastos, tipo } = datosActuales;
+      const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
+      const ahorro = ingresos - totalGastos;
+
+      // Crear hoja de resumen
+      const resumen = [
+        ['Reporte Financiero Ocelotl'],
+        ['Tipo:', tipo],
+        ['Fecha:', new Date().toLocaleDateString()],
+        [],
+        ['RESUMEN FINANCIERO'],
+        ['Ingresos Totales', '$' + ingresos.toLocaleString()],
+        ['Gastos Totales', '$' + totalGastos.toLocaleString()],
+        [ahorro >= 0 ? 'Ahorro' : 'Déficit', '$' + Math.abs(ahorro).toLocaleString()],
+        ['% de Ahorro', (ahorro / ingresos * 100).toFixed(1) + '%'],
+        [],
+        ['DETALLE DE GASTOS'],
+        ['Categoría', 'Monto', '% del Total']
+      ];
+
+      gastos.forEach(g => {
+        const porcentaje = (g.monto / totalGastos * 100).toFixed(1);
+        resumen.push([g.nombre, g.monto, porcentaje + '%']);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(resumen);
+      
+      // Ajustar anchos de columna
+      ws['!cols'] = [
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 15 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Análisis Financiero');
+      XLSX.writeFile(wb, `Ocelotl_Analisis_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    // Exportar a PDF
+    function exportarPDF() {
+      if (!datosActuales) {
+        alert('Primero visualiza tus datos');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      const { ingresos, gastos, tipo } = datosActuales;
+      const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
+      const ahorro = ingresos - totalGastos;
+      const porcentajeAhorro = (ahorro / ingresos * 100).toFixed(1);
+
+      // Colores azules
+      const azulOscuro = [59, 130, 246];
+      const azulClaro = [147, 197, 253];
+
+      // Encabezado
+      doc.setFillColor(...azulOscuro);
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text('🐆 Ocelotl', 20, 20);
+      
+      doc.setFontSize(14);
+      doc.text('Análisis Financiero ' + tipo, 20, 30);
+      
+      // Información general
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.text('Fecha: ' + new Date().toLocaleDateString(), 150, 20);
+
+      // Resumen Ejecutivo
+      doc.setFontSize(16);
+      doc.setTextColor(...azulOscuro);
+      doc.text('Resumen Ejecutivo', 20, 55);
+
+      const datosResumen = [
+        ['Ingresos Totales', '$' + ingresos.toLocaleString()],
+        ['Gastos Totales', '$' + totalGastos.toLocaleString()],
+        [ahorro >= 0 ? 'Ahorro' : 'Déficit', '$' + Math.abs(ahorro).toLocaleString()],
+        ['% de Ahorro', porcentajeAhorro + '%']
+      ];
+
+      doc.autoTable({
+        startY: 60,
+        head: [['Concepto', 'Valor']],
+        body: datosResumen,
+        theme: 'grid',
+        headStyles: { 
+          fillColor: azulOscuro,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: { fillColor: [248, 249, 250] },
+        margin: { left: 20, right: 20 }
+      });
+
+      // Detalle de Gastos
+      let finalY = doc.lastAutoTable.finalY + 15;
+      
+      doc.setFontSize(16);
+      doc.setTextColor(...azulOscuro);
+      doc.text('Detalle de Gastos', 20, finalY);
+
+      const datosGastos = gastos.map(g => [
+        g.nombre,
+        '$' + g.monto.toLocaleString(),
+        (g.monto / totalGastos * 100).toFixed(1) + '%',
+        (g.monto / ingresos * 100).toFixed(1) + '%'
+      ]);
+
+      doc.autoTable({
+        startY: finalY + 5,
+        head: [['Categoría', 'Monto', '% del Total', '% de Ingresos']],
+        body: datosGastos,
+        theme: 'grid',
+        headStyles: { 
+          fillColor: azulOscuro,
+          textColor: [255, 255, 255],
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: { fillColor: [248, 249, 250] },
+        margin: { left: 20, right: 20 }
+      });
+
+      // Insights
+      finalY = doc.lastAutoTable.finalY + 15;
+      
+      if (finalY > 250) {
+        doc.addPage();
+        finalY = 20;
+      }
+
+      doc.setFontSize(16);
+      doc.setTextColor(...azulOscuro);
+      doc.text('Análisis y Recomendaciones', 20, finalY);
+
+      doc.setFontSize(10);
+      doc.setTextColor(0, 0, 0);
+      
+      const insights = [];
+      
+      if (ahorro < 0) {
+        insights.push('⚠️ Alerta: Gastas más de lo que ganas. Necesitas reducir gastos.');
+      } else if (ahorro / ingresos < 0.10) {
+        insights.push('💡 Tu ahorro es bajo. Intenta ahorrar al menos el 20% de tus ingresos.');
+      } else {
+        insights.push('✅ Excelente: Estás ahorrando ' + porcentajeAhorro + '% de tus ingresos.');
+      }
+
+      const gastoMayor = gastos.reduce((max, g) => g.monto > max.monto ? g : max, gastos[0]);
+      const porcentajeGastoMayor = (gastoMayor.monto / ingresos * 100).toFixed(1);
+      
+      if (porcentajeGastoMayor > 40) {
+        insights.push(`🔍 "${gastoMayor.nombre}" representa el ${porcentajeGastoMayor}% de tus ingresos.`);
+      }
+
+      insights.forEach((insight, i) => {
+        doc.text(insight, 20, finalY + 10 + (i * 10), { maxWidth: 170 });
+      });
+
+      // Footer
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text(
+          'Generado por Ocelotl - Finanzas Claras para Personas Reales',
+          105,
+          290,
+          { align: 'center' }
+        );
+      }
+
+      doc.save(`Ocelotl_Analisis_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+
+    // Actualizar gráficas
+    function actualizarGraficas() {
+      const datos = obtenerDatos();
+      datosActuales = datos;
+      
+      const { ingresos, gastos } = datos;
+      
+      if (gastos.length === 0) {
+        alert('Agrega al menos una categoría de gastos');
+        return;
+      }
+      
+      const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
+      const ahorro = ingresos - totalGastos;
+      const porcentajeAhorro = (ahorro / ingresos * 100).toFixed(1);
+      
+      // Generar HTML de visualización
+      const html = `
+        <!-- Botones de Exportación -->
+        <div class="export-buttons">
+          <button class="btn-export excel" onclick="exportarExcel()">
+            📊 Descargar Excel
+          </button>
+          <button class="btn-export" onclick="exportarPDF()">
+            📄 Descargar PDF
+          </button>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <h4>Ingresos Totales</h4>
+            <div class="value">$${ingresos.toLocaleString()}</div>
+          </div>
+          <div class="stat-box danger">
+            <h4>Gastos Totales</h4>
+            <div class="value">$${totalGastos.toLocaleString()}</div>
+          </div>
+          <div class="stat-box ${ahorro >= 0 ? 'success' : 'warning'}">
+            <h4>${ahorro >= 0 ? 'Ahorro' : 'Déficit'}</h4>
+            <div class="value">$${Math.abs(ahorro).toLocaleString()}</div>
+          </div>
+          <div class="stat-box warning">
+            <h4>% de Ahorro</h4>
+            <div class="value">${porcentajeAhorro}%</div>
+          </div>
+        </div>
+
+        <!-- Gráfica de Pastel -->
+        <div class="chart-card">
+          <h3>📊 Distribución de Gastos</h3>
+          <canvas id="chartPastel" style="max-height: 400px;"></canvas>
+        </div>
+
+        <!-- Gráfica de Barras -->
+        <div class="chart-card">
+          <h3>📈 Comparativa de Categorías</h3>
+          <canvas id="chartBarras" style="max-height: 400px;"></canvas>
+        </div>
+
+        <!-- Insights -->
+        <div class="insights">
+          <h4>💡 Análisis Automático</h4>
+          ${generarInsights(ingresos, gastos, ahorro)}
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+          <h3>¿Te gustaría mejorar estos números?</h3>
+          <p>Trabajemos juntos para optimizar tus finanzas y alcanzar tus metas</p>
+          <div class="cta-buttons">
+            <a href="https://wa.me/5212321134388?text=Hola, probé el visualizador y me gustaría una asesoría personalizada" class="cta-btn">
+              💬 Agenda una Asesoría
+            </a>
+            <a href="productos.html" class="cta-btn secondary">
+              📋 Ver Plantillas
+            </a>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('visualization').innerHTML = html;
+      
+      setTimeout(() => {
+        crearGraficaPastel(gastos);
+        crearGraficaBarras(gastos, ingresos);
+      }, 100);
+    }
+
+    // Generar insights automáticos
+    function generarInsights(ingresos, gastos, ahorro) {
+      const insights = [];
+      const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
+      
+      if (ahorro < 0) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">⚠️</span>
+            <div>
+              <strong>Alerta:</strong> Estás gastando más de lo que ganas. 
+              Necesitas reducir gastos en $${Math.abs(ahorro).toLocaleString()}.
+            </div>
+          </div>
+        `);
+      } else if (ahorro / ingresos < 0.10) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">💡</span>
+            <div>
+              <strong>Oportunidad:</strong> Tu ahorro es bajo (${(ahorro/ingresos*100).toFixed(1)}%). 
+              Intenta ahorrar al menos el 20% de tus ingresos.
+            </div>
+          </div>
+        `);
+      } else {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">✅</span>
+            <div>
+              <strong>Excelente:</strong> Estás ahorrando ${(ahorro/ingresos*100).toFixed(1)}% de tus ingresos. 
+              ¡Sigue así!
+            </div>
+          </div>
+        `);
+      }
+      
+      const gastoMayor = gastos.reduce((max, g) => g.monto > max.monto ? g : max, gastos[0]);
+      const porcentajeGastoMayor = (gastoMayor.monto / ingresos * 100).toFixed(1);
+      
+      if (porcentajeGastoMayor > 40) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">🔍</span>
+            <div>
+              <strong>Observación:</strong> "${gastoMayor.nombre}" representa el ${porcentajeGastoMayor}% de tus ingresos. 
+              Podríamos analizar si hay oportunidades de optimización.
+            </div>
+          </div>
+        `);
+      }
+      
+      if (gastos.length > 10) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">📋</span>
+            <div>
+              <strong>Sugerencia:</strong> Tienes muchas categorías de gastos (${gastos.length}). 
+              Podríamos simplificar tu presupuesto para mejor control.
+            </div>
+          </div>
+        `);
+      }
+      
+      return insights.join('');
+    }
+
+    // Crear gráfica de pastel
+    function crearGraficaPastel(gastos) {
+      const ctx = document.getElementById('chartPastel');
+      if (!ctx) return;
+      
+      if (graficaPastel) graficaPastel.destroy();
+      
+      const colores = [
+        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+        '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+      ];
+      
+      graficaPastel = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: gastos.map(g => g.nombre),
+          datasets: [{
+            data: gastos.map(g => g.monto),
+            backgroundColor: colores.slice(0, gastos.length),
+            borderWidth: 3,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 15,
+                font: { size: 13 }
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const total = gastos.reduce((sum, g) => sum + g.monto, 0);
+                  const porcentaje = (context.parsed / total * 100).toFixed(1);
+                  return `${context.label}: $${context.parsed.toLocaleString()} (${porcentaje}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Crear gráfica de barras
+    function crearGraficaBarras(gastos, ingresos) {
+      const ctx = document.getElementById('chartBarras');
+      if (!ctx) return;
+      
+      if (graficaBarras) graficaBarras.destroy();
+      
+      graficaBarras = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: gastos.map(g => g.nombre),
+          datasets: [{
+            label: 'Monto ($)',
+            data: gastos.map(g => g.monto),
+            backgroundColor: '#3b82f6',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '$' + value.toLocaleString();
+                }
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const porcentaje = (context.parsed.y / ingresos * 100).toFixed(1);
+                  return `$${context.parsed.y.toLocaleString()} (${porcentaje}% de ingresos)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Toggle tema oscuro
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      const btn = document.querySelector('.theme-toggle');
+      btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+      
+      if (graficaPastel || graficaBarras) {
+        actualizarGraficas();
+      }
+    }
+
+    // Cargar visualización inicial
+    window.addEventListener('load', () => {
+      actualizarGraficas();
+    });
+  </script>
 </body>
 </html>
-
