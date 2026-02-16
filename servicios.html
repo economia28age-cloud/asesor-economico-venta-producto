@@ -129,6 +129,7 @@
       gap: 0.5rem;
       margin-bottom: 1.5rem;
       border-bottom: 3px solid var(--border);
+      flex-wrap: wrap;
     }
 
     .tab {
@@ -225,9 +226,9 @@
     }
 
     .btn-add:hover {
-      background: var(--primary-light);
+      background: #059669;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+      box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
     }
 
     .btn-primary {
@@ -245,9 +246,9 @@
     }
 
     .btn-primary:hover {
-      background: var(--primary-light);
+      background: #2563eb;
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(27, 67, 50, 0.3);
+      box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
     }
 
     /* Panel de visualización */
@@ -314,6 +315,40 @@
       font-weight: bold;
     }
 
+    /* Calculadora de Tarjeta */
+    .tarjeta-resultado {
+      background: var(--bg-light);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .tarjeta-resultado p {
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .tarjeta-resultado strong {
+      color: var(--primary);
+    }
+
+    .resultado-favorable {
+      background: #ecfdf5;
+      border-left-color: var(--secondary);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .resultado-desfavorable {
+      background: #fef2f2;
+      border-left-color: var(--danger);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
     /* Botones de descarga */
     .export-buttons {
       display: flex;
@@ -341,7 +376,7 @@
     }
 
     .btn-export:hover {
-      background: var(--primary-light);
+      background: #2563eb;
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
     }
@@ -471,6 +506,14 @@
       .cta-buttons, .export-buttons {
         flex-direction: column;
       }
+
+      .tabs {
+        font-size: 0.85rem;
+      }
+
+      .tab {
+        padding: 0.5rem 1rem;
+      }
     }
   </style>
 </head>
@@ -481,14 +524,14 @@
   <header>
     <h1>🐆 Ocelotl - Visualizador Financiero (Plataforma en construcción)🚧</h1>
     <p>Ingresa tus datos y visualiza tu situación financiera en tiempo real</p>
-
-    <nav>
+  
+   <nav>
       <a href="index.html">🏠 Inicio</a>
       <a href="servicios.html" class="active">📊 Servicios</a>
       <a href="productos.html">🕯️ Productos</a>
       
         </nav>
-
+  
   </header>
 
   <div class="container">
@@ -500,6 +543,7 @@
         <div class="tabs">
           <button class="tab active" onclick="cambiarTab('personal')">Personal</button>
           <button class="tab" onclick="cambiarTab('empresa')">Empresa</button>
+          <button class="tab" onclick="cambiarTab('tarjeta')">💳 Tarjeta</button>
         </div>
 
         <!-- Pestaña Personal -->
@@ -580,6 +624,31 @@
 
           <button class="btn-primary" onclick="actualizarGraficas()">📊 Visualizar</button>
         </div>
+
+        <!-- Pestaña Tarjeta (NUEVA) -->
+        <div id="tab-tarjeta" class="tab-content" style="display: none;">
+          <div class="input-group">
+            <label>💳 Gasto Mensual con Tarjeta ($)</label>
+            <input type="number" id="gasto-tarjeta" placeholder="10000" value="10000">
+          </div>
+
+          <div class="input-group">
+            <label>💰 % Cashback o Recompensa</label>
+            <input type="number" id="cashback" placeholder="7" value="7" step="0.1">
+          </div>
+
+          <div class="input-group">
+            <label>📈 Tasa Anual de Interés (%)</label>
+            <input type="number" id="tasa-interes" placeholder="60" value="60" step="0.1">
+          </div>
+
+          <div class="input-group">
+            <label>💵 Anualidad de la Tarjeta ($)</label>
+            <input type="number" id="anualidad" placeholder="0" value="0">
+          </div>
+
+          <button class="btn-primary" onclick="calcularTarjeta()">🧮 Calcular Beneficio</button>
+        </div>
       </div>
 
       <!-- Panel de visualización -->
@@ -597,6 +666,7 @@
     let tabActual = 'personal';
     let graficaPastel = null;
     let graficaBarras = null;
+    let graficaTarjeta = null;
     let datosActuales = null;
 
     // Cambiar entre pestañas
@@ -608,6 +678,7 @@
       
       document.getElementById('tab-personal').style.display = tab === 'personal' ? 'block' : 'none';
       document.getElementById('tab-empresa').style.display = tab === 'empresa' ? 'block' : 'none';
+      document.getElementById('tab-tarjeta').style.display = tab === 'tarjeta' ? 'block' : 'none';
     }
 
     // Agregar categoría
@@ -659,6 +730,230 @@
       return { ingresos, gastos, tipo: esEmpresa ? 'Empresa' : 'Personal' };
     }
 
+    // NUEVA FUNCIÓN: Calcular beneficios de tarjeta
+    function calcularTarjeta() {
+      const gasto = parseFloat(document.getElementById('gasto-tarjeta').value) || 0;
+      const cashback = parseFloat(document.getElementById('cashback').value) || 0;
+      const tasa = parseFloat(document.getElementById('tasa-interes').value) || 0;
+      const anualidad = parseFloat(document.getElementById('anualidad').value) || 0;
+
+      if (gasto === 0 || cashback === 0) {
+        alert('Por favor completa los campos de gasto y cashback');
+        return;
+      }
+
+      const cashbackMensual = gasto * (cashback / 100);
+      const cashbackAnual = cashbackMensual * 12;
+      const interesMensual = (gasto * (tasa / 100)) / 12;
+      const interesAnual = interesMensual * 12;
+      const beneficioNetoMensual = cashbackMensual - interesMensual;
+      const beneficioNetoAnual = cashbackAnual - interesAnual - anualidad;
+      
+      const esConveniente = beneficioNetoAnual > 0;
+
+      // Generar HTML de visualización
+      const html = `
+        <!-- Estadísticas de Tarjeta -->
+        <div class="stats-grid">
+          <div class="stat-box success">
+            <h4>💰 Cashback Mensual</h4>
+            <div class="value">$${cashbackMensual.toFixed(2)}</div>
+          </div>
+          <div class="stat-box warning">
+            <h4>📈 Interés Mensual</h4>
+            <div class="value">$${interesMensual.toFixed(2)}</div>
+          </div>
+          <div class="stat-box ${esConveniente ? 'success' : 'danger'}">
+            <h4>💵 Beneficio Neto Anual</h4>
+            <div class="value">$${beneficioNetoAnual.toFixed(2)}</div>
+          </div>
+          <div class="stat-box">
+            <h4>🎁 Cashback Anual</h4>
+            <div class="value">$${cashbackAnual.toFixed(2)}</div>
+          </div>
+        </div>
+
+        <!-- Gráfica Comparativa -->
+        <div class="chart-card">
+          <h3>📊 Análisis Comparativo Anual</h3>
+          <canvas id="chartTarjeta" style="max-height: 400px;"></canvas>
+        </div>
+
+        <!-- Resultado Detallado -->
+        <div class="chart-card">
+          <h3>💡 Análisis Detallado</h3>
+          <div class="tarjeta-resultado">
+            <p><strong>Gasto mensual:</strong> $${gasto.toLocaleString()}</p>
+            <p><strong>Cashback mensual (${cashback}%):</strong> $${cashbackMensual.toFixed(2)}</p>
+            <p><strong>Cashback anual:</strong> $${cashbackAnual.toFixed(2)}</p>
+            <p><strong>Interés mensual estimado:</strong> $${interesMensual.toFixed(2)}</p>
+            <p><strong>Interés anual estimado:</strong> $${interesAnual.toFixed(2)}</p>
+            <p><strong>Anualidad:</strong> $${anualidad.toFixed(2)}</p>
+            <hr style="margin: 1rem 0; border: none; border-top: 2px solid var(--border);">
+            <p><strong>Beneficio neto mensual:</strong> $${beneficioNetoMensual.toFixed(2)}</p>
+            <p><strong>Beneficio neto anual:</strong> $${beneficioNetoAnual.toFixed(2)}</p>
+            
+            <div class="${esConveniente ? 'resultado-favorable' : 'resultado-desfavorable'}">
+              ${esConveniente 
+                ? `<p style="color: var(--secondary); font-weight: bold;">✅ Conviene usar esta tarjeta si pagas el total cada mes. Ganarás $${beneficioNetoAnual.toFixed(2)} al año.</p>`
+                : `<p style="color: var(--danger); font-weight: bold;">⚠️ El interés puede comerse el beneficio. Con esta tasa perderías $${Math.abs(beneficioNetoAnual).toFixed(2)} al año.</p>`
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="insights">
+          <h4>💡 Recomendaciones</h4>
+          ${generarInsightsTarjeta(cashbackAnual, interesAnual, anualidad, esConveniente, beneficioNetoAnual)}
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+          <h3>¿Quieres optimizar tus tarjetas?</h3>
+          <p>Te ayudamos a elegir las mejores tarjetas según tu perfil financiero</p>
+          <div class="cta-buttons">
+            <a href="https://wa.me/5212321134388?text=Hola, probé la calculadora de tarjetas y me gustaría una asesoría personalizada" class="cta-btn">
+              💬 Agenda una Asesoría
+            </a>
+            <a href="#" class="cta-btn secondary">
+              📋 Ver Comparativa de Tarjetas
+            </a>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('visualization').innerHTML = html;
+      
+      setTimeout(() => {
+        crearGraficaTarjeta(cashbackAnual, interesAnual, anualidad);
+      }, 100);
+    }
+
+    // Generar insights para tarjeta
+    function generarInsightsTarjeta(cashbackAnual, interesAnual, anualidad, esConveniente, beneficioNeto) {
+      const insights = [];
+      
+      if (esConveniente) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">✅</span>
+            <div>
+              <strong>Excelente elección:</strong> Esta tarjeta te genera $${beneficioNeto.toFixed(2)} de beneficio neto al año.
+            </div>
+          </div>
+        `);
+        
+        if (cashbackAnual > 1000) {
+          insights.push(`
+            <div class="insight-item">
+              <span class="insight-icon">💰</span>
+              <div>
+                <strong>Gran ahorro:</strong> Estás generando más de $1,000 en cashback anual. ¡Aprovecha al máximo!
+              </div>
+            </div>
+          `);
+        }
+      } else {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">⚠️</span>
+            <div>
+              <strong>Precaución:</strong> Si no pagas el total mensual, perderías $${Math.abs(beneficioNeto).toFixed(2)} al año por intereses.
+            </div>
+          </div>
+        `);
+        
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">💡</span>
+            <div>
+              <strong>Recomendación:</strong> Considera buscar una tarjeta con menor tasa de interés o mayor cashback.
+            </div>
+          </div>
+        `);
+      }
+      
+      if (anualidad > cashbackAnual * 0.5) {
+        insights.push(`
+          <div class="insight-item">
+            <span class="insight-icon">🔍</span>
+            <div>
+              <strong>Anualidad alta:</strong> La anualidad ($${anualidad}) representa más del 50% de tu cashback. Evalúa tarjetas sin anualidad.
+            </div>
+          </div>
+        `);
+      }
+      
+      insights.push(`
+        <div class="insight-item">
+          <span class="insight-icon">📌</span>
+          <div>
+            <strong>Regla de oro:</strong> Siempre paga el total de tu tarjeta cada mes para evitar intereses y maximizar beneficios.
+          </div>
+        </div>
+      `);
+      
+      return insights.join('');
+    }
+
+    // Crear gráfica de tarjeta
+    function crearGraficaTarjeta(cashbackAnual, interesAnual, anualidad) {
+      const ctx = document.getElementById('chartTarjeta');
+      if (!ctx) return;
+      
+      if (graficaTarjeta) graficaTarjeta.destroy();
+      
+      const beneficioNeto = cashbackAnual - interesAnual - anualidad;
+      
+      graficaTarjeta = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Cashback Anual', 'Interés Anual', 'Anualidad', 'Beneficio Neto'],
+          datasets: [{
+            label: 'Monto ($)',
+            data: [cashbackAnual, -interesAnual, -anualidad, beneficioNeto],
+            backgroundColor: [
+              '#10b981', // verde para cashback
+              '#ef4444', // rojo para interés
+              '#f59e0b', // naranja para anualidad
+              beneficioNeto >= 0 ? '#10b981' : '#ef4444' // verde o rojo según beneficio
+            ],
+            borderRadius: 8,
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return '$' + Math.abs(value).toLocaleString();
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.parsed.y;
+                  return '$' + Math.abs(value).toLocaleString() + (value < 0 ? ' (costo)' : ' (beneficio)');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
     // Exportar a Excel
     function exportarExcel() {
       if (!datosActuales) {
@@ -670,7 +965,6 @@
       const totalGastos = gastos.reduce((sum, g) => sum + g.monto, 0);
       const ahorro = ingresos - totalGastos;
 
-      // Crear hoja de resumen
       const resumen = [
         ['Reporte Financiero Ocelotl'],
         ['Tipo:', tipo],
@@ -694,7 +988,6 @@
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(resumen);
       
-      // Ajustar anchos de columna
       ws['!cols'] = [
         { wch: 25 },
         { wch: 15 },
@@ -720,11 +1013,8 @@
       const ahorro = ingresos - totalGastos;
       const porcentajeAhorro = (ahorro / ingresos * 100).toFixed(1);
 
-      // Colores azules
       const azulOscuro = [59, 130, 246];
-      const azulClaro = [147, 197, 253];
 
-      // Encabezado
       doc.setFillColor(...azulOscuro);
       doc.rect(0, 0, 210, 40, 'F');
       
@@ -735,12 +1025,10 @@
       doc.setFontSize(14);
       doc.text('Análisis Financiero ' + tipo, 20, 30);
       
-      // Información general
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(10);
       doc.text('Fecha: ' + new Date().toLocaleDateString(), 150, 20);
 
-      // Resumen Ejecutivo
       doc.setFontSize(16);
       doc.setTextColor(...azulOscuro);
       doc.text('Resumen Ejecutivo', 20, 55);
@@ -766,7 +1054,6 @@
         margin: { left: 20, right: 20 }
       });
 
-      // Detalle de Gastos
       let finalY = doc.lastAutoTable.finalY + 15;
       
       doc.setFontSize(16);
@@ -794,43 +1081,6 @@
         margin: { left: 20, right: 20 }
       });
 
-      // Insights
-      finalY = doc.lastAutoTable.finalY + 15;
-      
-      if (finalY > 250) {
-        doc.addPage();
-        finalY = 20;
-      }
-
-      doc.setFontSize(16);
-      doc.setTextColor(...azulOscuro);
-      doc.text('Análisis y Recomendaciones', 20, finalY);
-
-      doc.setFontSize(10);
-      doc.setTextColor(0, 0, 0);
-      
-      const insights = [];
-      
-      if (ahorro < 0) {
-        insights.push('⚠️ Alerta: Gastas más de lo que ganas. Necesitas reducir gastos.');
-      } else if (ahorro / ingresos < 0.10) {
-        insights.push('💡 Tu ahorro es bajo. Intenta ahorrar al menos el 20% de tus ingresos.');
-      } else {
-        insights.push('✅ Excelente: Estás ahorrando ' + porcentajeAhorro + '% de tus ingresos.');
-      }
-
-      const gastoMayor = gastos.reduce((max, g) => g.monto > max.monto ? g : max, gastos[0]);
-      const porcentajeGastoMayor = (gastoMayor.monto / ingresos * 100).toFixed(1);
-      
-      if (porcentajeGastoMayor > 40) {
-        insights.push(`🔍 "${gastoMayor.nombre}" representa el ${porcentajeGastoMayor}% de tus ingresos.`);
-      }
-
-      insights.forEach((insight, i) => {
-        doc.text(insight, 20, finalY + 10 + (i * 10), { maxWidth: 170 });
-      });
-
-      // Footer
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -847,7 +1097,7 @@
       doc.save(`Ocelotl_Analisis_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
-    // Actualizar gráficas
+    // Actualizar gráficas (Personal/Empresa)
     function actualizarGraficas() {
       const datos = obtenerDatos();
       datosActuales = datos;
@@ -863,9 +1113,7 @@
       const ahorro = ingresos - totalGastos;
       const porcentajeAhorro = (ahorro / ingresos * 100).toFixed(1);
       
-      // Generar HTML de visualización
       const html = `
-        <!-- Botones de Exportación -->
         <div class="export-buttons">
           <button class="btn-export excel" onclick="exportarExcel()">
             📊 Descargar Excel
@@ -875,7 +1123,6 @@
           </button>
         </div>
 
-        <!-- Estadísticas -->
         <div class="stats-grid">
           <div class="stat-box">
             <h4>Ingresos Totales</h4>
@@ -895,25 +1142,21 @@
           </div>
         </div>
 
-        <!-- Gráfica de Pastel -->
         <div class="chart-card">
           <h3>📊 Distribución de Gastos</h3>
           <canvas id="chartPastel" style="max-height: 400px;"></canvas>
         </div>
 
-        <!-- Gráfica de Barras -->
         <div class="chart-card">
           <h3>📈 Comparativa de Categorías</h3>
           <canvas id="chartBarras" style="max-height: 400px;"></canvas>
         </div>
 
-        <!-- Insights -->
         <div class="insights">
           <h4>💡 Análisis Automático</h4>
           ${generarInsights(ingresos, gastos, ahorro)}
         </div>
 
-        <!-- CTA -->
         <div class="cta-section">
           <h3>¿Te gustaría mejorar estos números?</h3>
           <p>Trabajemos juntos para optimizar tus finanzas y alcanzar tus metas</p>
@@ -1102,8 +1345,12 @@
       const btn = document.querySelector('.theme-toggle');
       btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
       
-      if (graficaPastel || graficaBarras) {
-        actualizarGraficas();
+      if (graficaPastel || graficaBarras || graficaTarjeta) {
+        if (tabActual === 'tarjeta') {
+          calcularTarjeta();
+        } else {
+          actualizarGraficas();
+        }
       }
     }
 
